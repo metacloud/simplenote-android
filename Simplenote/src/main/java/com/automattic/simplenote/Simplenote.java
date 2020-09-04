@@ -47,6 +47,7 @@ public class Simplenote extends Application {
     private Simperium mSimperium;
     private Bucket<Note> mNotesBucket;
     private Bucket<Tag> mTagsBucket;
+    private LastSyncTimeCache<Note> mNoteSyncTimes = new LastSyncTimeCache<>();
     private static Bucket<Preferences> mPreferencesBucket;
 
     public void onCreate() {
@@ -65,6 +66,7 @@ public class Simplenote extends Application {
 
         try {
             mNotesBucket = mSimperium.bucket(new Note.Schema());
+            mNotesBucket.addListener(mNoteSyncTimes.listener);
             Tag.Schema tagSchema = new Tag.Schema();
             tagSchema.addIndex(new NoteCountIndexer(mNotesBucket));
             mTagsBucket = mSimperium.bucket(tagSchema);
@@ -127,6 +129,10 @@ public class Simplenote extends Application {
 
     public Simperium getSimperium() {
         return mSimperium;
+    }
+
+    public LastSyncTimeCache<Note> getLastSyncTimeCache() {
+        return mNoteSyncTimes;
     }
 
     public Bucket<Note> getNotesBucket() {

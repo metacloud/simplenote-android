@@ -23,6 +23,11 @@
             android:paddingEnd="@dimen/padding_extra_large"
             android:paddingStart="@dimen/padding_extra_large">
 
+            <TextView
+                android:id="@+id/note_last_sync_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <androidx.core.widget.NestedScrollView
                 android:fillViewport="true"
                 android:layout_height="0dp"

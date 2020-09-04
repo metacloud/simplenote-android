@@ -120,6 +120,7 @@ public class NoteEditorFragment extends Fragment implements Bucket.Listener<Note
     private View mRootView;
     private View mTagPadding;
     private SimplenoteEditText mContentEditText;
+    private TextView mLastSyncTime;
     private ChipGroup mTagChips;
     private TagsMultiAutoCompleteTextView mTagInput;
     private Handler mAutoSaveHandler;
@@ -302,6 +303,20 @@ public class NoteEditorFragment extends Fragment implements Bucket.Listener<Note
 
         Simplenote currentApp = (Simplenote) requireActivity().getApplication();
         mNotesBucket = currentApp.getNotesBucket();
+        currentApp.getLastSyncTimeCache().addListener(new LastSyncTimeCache.SyncTimeListener() {
+            @Override
+            public void onUpdate(String entityId, Calendar lastSyncTime) {
+                if (null == mLastSyncTime) {
+                    return;
+                }
+
+                mLastSyncTime.setText(Note.dateString(
+                        lastSyncTime,
+                        false,
+                        requireActivity().getApplicationContext()
+                ));
+            }
+        });
 
         mCallIcon = DrawableUtils.tintDrawableWithAttribute(getActivity(), R.drawable.ic_call_white_24dp, R.attr.actionModeTextColor);
         mEmailIcon = DrawableUtils.tintDrawableWithAttribute(getActivity(), R.drawable.ic_email_24dp, R.attr.actionModeTextColor);
@@ -364,6 +379,7 @@ public class NoteEditorFragment extends Fragment implements Bucket.Listener<Note
         mContentEditText.setMovementMethod(SimplenoteMovementMethod.getInstance());
         mContentEditText.setOnFocusChangeListener(this);
         mContentEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, PrefUtils.getFontSize(requireContext()));
+        mLastSyncTime = mRootView.findViewById(R.id.note_last_sync_time);
         mTagInput = mRootView.findViewById(R.id.tag_input);
         mTagInput.setDropDownBackgroundResource(R.drawable.bg_list_popup);
         mTagInput.setTokenizer(new SpaceTokenizer());
@@ -1497,6 +1513,17 @@ public class NoteEditorFragment extends Fragment implements Bucket.Listener<Note
             String noteID = args[0];
             Simplenote application = (Simplenote) fragment.getActivity().getApplication();
             Bucket<Note> notesBucket = application.getNotesBucket();
+
+            Calendar lastSyncTime = application.getLastSyncTimeCache().getLastSyncTime(noteID);
+            if (null != lastSyncTime) {
+                fragment.mLastSyncTime.setText(Note.dateString(
+                    lastSyncTime,
+                    false,
+                    application.getApplicationContext()
+                ));
+            } else {
+                fragment.mLastSyncTime.setText("");
+            }
 
             try {
                 fragment.mNote = notesBucket.get(noteID);
