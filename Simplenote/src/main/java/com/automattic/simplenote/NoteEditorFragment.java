@@ -305,15 +305,14 @@ public class NoteEditorFragment extends Fragment implements Bucket.Listener<Note
         mNotesBucket = currentApp.getNotesBucket();
         currentApp.getLastSyncTimeCache().addListener(new LastSyncTimeCache.SyncTimeListener() {
             @Override
-            public void onUpdate(String entityId, Calendar lastSyncTime) {
+            public void onUpdate(String entityId, Calendar lastSyncTime, boolean isSynced) {
                 if (null == mLastSyncTime) {
                     return;
                 }
 
-                mLastSyncTime.setText(Note.dateString(
-                        lastSyncTime,
-                        false,
-                        requireActivity().getApplicationContext()
+                mLastSyncTime.setText("%s %s".format(
+                    Note.dateString( lastSyncTime, false, requireActivity().getApplicationContext()),
+                    isSynced ? "✅" : "🔄"
                 ));
             }
         });
